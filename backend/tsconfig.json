@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "rootDir": "..",
     "target": "ES2022",
     "module": "CommonJS",
     "moduleResolution": "Node",
@@ -9,5 +10,5 @@
     "forceConsistentCasingInFileNames": true,
     "outDir": "dist"
   },
-  "include": ["*.ts"]
+  "include": ["**/*.ts", "../shared/**/*.ts"]
 }

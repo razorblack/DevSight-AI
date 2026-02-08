@@ -5,6 +5,19 @@ export interface TableProps {
   dataKey?: string;
 }
 
+function formatCell(value: unknown) {
+  if (value === null || value === undefined) return "";
+  if (typeof value === "string") return value;
+  if (typeof value === "number" || typeof value === "boolean") return String(value);
+
+  try {
+    const json = JSON.stringify(value);
+    return json.length > 120 ? `${json.slice(0, 117)}...` : json;
+  } catch {
+    return String(value);
+  }
+}
+
 export function Table({ title, columns, data }: TableProps) {
   const rows = Array.isArray(data) ? data : [];
 
@@ -43,7 +56,7 @@ export function Table({ title, columns, data }: TableProps) {
                 >
                   {columns.map((col) => (
                     <td key={col} className="px-6 py-3 align-top">
-                      {String(row[col] ?? "")}
+                      {formatCell(row[col])}
                     </td>
                   ))}
                 </tr>

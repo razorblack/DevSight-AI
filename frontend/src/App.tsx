@@ -3,20 +3,15 @@ import { useMemo, useState } from "react";
 import { EmptyState } from "./components";
 import { TamboSchemaRenderer } from "./renderer/TamboSchemaRenderer";
 import type { GenerateUiResponse } from "./schemas/uiSchema";
-
-const SUPPORTED_PROMPTS = [
-  "Why is my API slow?",
-  "Show recent errors",
-  "Deployment health summary",
-] as const;
+import { SUPPORTED_PROMPTS } from "../../shared/prompts";
 
 export default function App() {
-  const backendUrl = useMemo(
-    () =>
-      (import.meta.env.VITE_BACKEND_URL as string | undefined) ??
-      "http://localhost:3001",
-    [],
-  );
+  const backendUrl = useMemo(() => {
+    const env = import.meta.env.VITE_BACKEND_URL;
+    return typeof env === "string" && env.trim().length > 0
+      ? env.trim()
+      : "http://localhost:3001";
+  }, []);
 
   const [prompt, setPrompt] = useState("");
   const [result, setResult] = useState<GenerateUiResponse | null>(null);
@@ -48,8 +43,15 @@ export default function App() {
       const json = (await res.json()) as GenerateUiResponse;
       setResult(json);
     } catch (e) {
-      const message = e instanceof Error ? e.message : "Unknown error";
-      setError(message);
+      const rawMessage = e instanceof Error ? e.message : "Unknown error";
+
+      if (e instanceof TypeError && rawMessage.includes("fetch")) {
+        setError(
+          `Could not reach backend at ${backendUrl}. Is the backend running? (VITE_BACKEND_URL optional)`
+        );
+      } else {
+        setError(rawMessage);
+      }
       setResult(null);
     } finally {
       setIsLoading(false);

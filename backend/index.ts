@@ -23,7 +23,13 @@ app.post("/generate-ui", (req, res) => {
     return;
   }
 
-  res.json(generateUi(prompt));
+  try {
+    res.json(generateUi(prompt));
+  } catch (err) {
+    // eslint-disable-next-line no-console
+    console.error("generateUi failed", err);
+    res.status(500).json({ error: "Failed to generate UI schema" });
+  }
 });
 
 const port = Number(process.env.PORT ?? 3001);

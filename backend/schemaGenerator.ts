@@ -1,36 +1,22 @@
-export type UiLayout = "grid" | "stack" | "split";
+import type { GenerateUiResponse } from "../shared/uiSchema";
+import { SUPPORTED_PROMPTS } from "../shared/prompts";
 
-export type UiComponentType =
-  | "LineChart"
-  | "Table"
-  | "InsightCard"
-  | "StatusCard"
-  | "EmptyState";
-
-export interface UiComponentDescriptor {
-  type: UiComponentType;
-  props: Record<string, unknown>;
-}
-
-export interface UiSchema {
-  title: string;
-  layout: UiLayout;
-  components: UiComponentDescriptor[];
-}
-
-export interface GenerateUiResult {
-  schema: UiSchema;
-  data: Record<string, unknown>;
+function normalizePrompt(input: string) {
+  return input
+    .trim()
+    .toLowerCase()
+    .replace(/[?!\.]+$/g, "")
+    .replace(/\s+/g, " ");
 }
 
 const PROMPTS = {
-  apiSlow: "why is my api slow?",
-  recentErrors: "show recent errors",
-  deployHealth: "deployment health summary",
+  apiSlow: normalizePrompt(SUPPORTED_PROMPTS[0]),
+  recentErrors: normalizePrompt(SUPPORTED_PROMPTS[1]),
+  deployHealth: normalizePrompt(SUPPORTED_PROMPTS[2]),
 } as const;
 
-export function generateUi(prompt: string): GenerateUiResult {
-  const normalized = prompt.trim().toLowerCase();
+export function generateUi(prompt: string): GenerateUiResponse {
+  const normalized = normalizePrompt(prompt);
 
   if (normalized === PROMPTS.apiSlow) {
     return {

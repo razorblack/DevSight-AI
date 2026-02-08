@@ -1,7 +1,6 @@
-import { useTamboRegistry } from "@tambo-ai/react/internal-registry";
-
 import { EmptyState } from "../components";
 import type { UiComponentDescriptor, UiLayout, UiSchema } from "../schemas/uiSchema";
+import { useDevSightRegistry } from "./useDevSightRegistry";
 
 function layoutClassName(layout: UiLayout) {
   switch (layout) {
@@ -36,7 +35,7 @@ export interface TamboSchemaRendererProps {
 }
 
 export function TamboSchemaRenderer({ schema, data }: TamboSchemaRendererProps) {
-  const { componentList } = useTamboRegistry();
+  const { componentList } = useDevSightRegistry();
 
   return (
     <div>

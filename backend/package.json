@@ -2,11 +2,11 @@
   "name": "devsight-ai-backend",
   "version": "0.0.0",
   "description": "DevSight AI MVP backend (Express + TypeScript)",
-  "main": "dist/index.js",
+  "main": "dist/backend/index.js",
   "scripts": {
     "dev": "tsx watch index.ts",
     "build": "tsc",
-    "start": "node dist/index.js",
+    "start": "node dist/backend/index.js",
     "typecheck": "tsc --noEmit"
   },
   "keywords": [],
