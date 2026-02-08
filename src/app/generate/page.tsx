@@ -1,8 +1,8 @@
 "use client";
 
 import { generateUiSchema, type GenerateUiSchemaResult } from "@/lib/ui-schema-generator";
-import { AlertCircle, Loader2, CheckCircle2, Sparkles } from "lucide-react";
-import { useState, useEffect } from "react";
+import { AlertCircle, Loader2, CheckCircle2, Sparkles, ChevronDown } from "lucide-react";
+import { useState, useEffect, useId } from "react";
 
 export default function GeneratePage() {
   const [prompt, setPrompt] = useState("");
@@ -11,6 +11,8 @@ export default function GeneratePage() {
   const [error, setError] = useState<string | null>(null);
   const [copySuccess, setCopySuccess] = useState(false);
   const [copyError, setCopyError] = useState<string | null>(null);
+  const [isSchemaPanelExpanded, setIsSchemaPanelExpanded] = useState(false);
+  const schemaPanelId = useId();
 
   // Auto-clear copy success message after 2 seconds
   useEffect(() => {
@@ -27,6 +29,7 @@ export default function GeneratePage() {
     setError(null);
     setResult(null);
     setIsLoading(true);
+    setIsSchemaPanelExpanded(false);
 
     try {
       // Yield to the browser so the loading indicator can render before
@@ -193,12 +196,45 @@ export default function GeneratePage() {
               </div>
 
               {/* Generated Schema */}
-              <div className="space-y-2">
-                <h3 className="text-lg font-medium text-gray-900">Generated Schema</h3>
-                <div className="bg-gray-900 rounded-lg p-4 overflow-x-auto">
-                  <pre className="text-sm text-green-400 font-mono">
-                    {JSON.stringify(result.schema, null, 2)}
-                  </pre>
+              <div className="border border-gray-200 rounded-lg overflow-hidden">
+                <button
+                  type="button"
+                  aria-expanded={isSchemaPanelExpanded}
+                  aria-controls={schemaPanelId}
+                  onClick={() => setIsSchemaPanelExpanded((prev) => !prev)}
+                  className="w-full flex items-center justify-between px-4 py-3 text-left hover:bg-gray-50 transition-colors"
+                >
+                  <div className="space-y-0.5">
+                    <h3 className="text-sm font-medium text-gray-900">
+                      Schema Debug Panel
+                    </h3>
+                    <p className="text-xs text-gray-500">
+                      Pretty-printed, read-only JSON
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm text-gray-600">
+                    <span>{isSchemaPanelExpanded ? "Hide" : "Show"}</span>
+                    <ChevronDown
+                      className={`w-4 h-4 transition-transform duration-200 ${
+                        isSchemaPanelExpanded ? "rotate-0" : "-rotate-90"
+                      }`}
+                    />
+                  </div>
+                </button>
+                <div
+                  id={schemaPanelId}
+                  aria-hidden={!isSchemaPanelExpanded}
+                  className={`transition-[max-height,opacity,padding] duration-300 overflow-hidden ${
+                    isSchemaPanelExpanded
+                      ? "max-h-[70vh] opacity-100 p-4 pt-0"
+                      : "max-h-0 opacity-0 p-0"
+                  }`}
+                >
+                  <div className="bg-gray-900 rounded-lg p-4 overflow-x-auto">
+                    <pre className="text-sm text-green-400 font-mono">
+                      {JSON.stringify(result.schema, null, 2)}
+                    </pre>
+                  </div>
                 </div>
               </div>
 
