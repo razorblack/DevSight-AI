@@ -111,7 +111,11 @@ const CodeHeader = ({
     <div className="flex items-center justify-between gap-4 rounded-t-md bg-container px-4 py-2 text-sm font-semibold text-foreground">
       <span className="lowercase text-muted-foreground">{language}</span>
       <button
-        onClick={copyToClipboard}
+        onClick={() => {
+          copyToClipboard().catch((err) => {
+            console.error("Copy handler failed", err);
+          });
+        }}
         className="p-1 rounded-md hover:bg-backdrop transition-colors cursor-pointer"
         title={error ? "Failed to copy" : "Copy code"}
       >

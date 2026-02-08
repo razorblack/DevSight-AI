@@ -41,10 +41,7 @@ interface DynamicComponentRendererProps {
  */
 function isValidComponent(component: React.ReactNode): boolean {
   if (!component) return false;
-  if (React.isValidElement(component)) return true;
-  // Check if it's a functional component or class component
-  if (typeof component === "function") return true;
-  return false;
+  return React.isValidElement(component);
 }
 
 /**
@@ -87,16 +84,20 @@ export const DynamicComponentRenderer = React.forwardRef<
       "loading" | "ready" | "timeout" | "invalid"
     >("loading");
     const [retryCount, setRetryCount] = React.useState(0);
-    const timeoutRef = React.useRef<NodeJS.Timeout | null>(null);
+    const timeoutRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
     const mountedRef = React.useRef(false);
 
     // Validate component and setup timeout on mount or when component changes
     React.useEffect(() => {
+      setRenderState("loading");
+
       // Validate component structure
       if (shouldValidate && !isValidComponent(component)) {
         setRenderState("invalid");
         return;
       }
+
+      mountedRef.current = true;
 
       // Start timeout timer
       timeoutRef.current = setTimeout(() => {
@@ -108,6 +109,10 @@ export const DynamicComponentRenderer = React.forwardRef<
       // Mark as ready after React completes mounting phase
       const readyTimer = setTimeout(() => {
         if (mountedRef.current) {
+          if (timeoutRef.current) {
+            clearTimeout(timeoutRef.current);
+            timeoutRef.current = null;
+          }
           setRenderState("ready");
           if (onRenderSuccess) {
             onRenderSuccess();
@@ -115,19 +120,18 @@ export const DynamicComponentRenderer = React.forwardRef<
         }
       }, REACT_MOUNT_DELAY);
 
-      mountedRef.current = true;
-
       // Cleanup
       return () => {
         if (timeoutRef.current) {
           clearTimeout(timeoutRef.current);
+          timeoutRef.current = null;
         }
         clearTimeout(readyTimer);
         mountedRef.current = false;
       };
       // Note: renderState is intentionally not in dependencies to avoid re-render cycles
       // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [component, shouldValidate, timeout, onRenderSuccess]);
+    }, [component, shouldValidate, timeout, onRenderSuccess, retryCount]);
 
     // Handle retry
     const handleRetry = React.useCallback(() => {

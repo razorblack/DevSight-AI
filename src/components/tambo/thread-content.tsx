@@ -5,6 +5,7 @@ import {
   MessageContent,
   MessageImages,
   MessageRenderedComponentArea,
+  LoadingIndicator,
   ReasoningInfo,
   ToolcallInfo,
   type messageVariants,
@@ -13,6 +14,7 @@ import { cn } from "@/lib/utils";
 import { type TamboThreadMessage, useTambo } from "@tambo-ai/react";
 import { type VariantProps } from "class-variance-authority";
 import * as React from "react";
+import { MessageGenerationStage } from "@/components/tambo/message-generation-stage";
 
 /**
  * @typedef ThreadContentContextValue
@@ -131,6 +133,12 @@ const ThreadContentMessages = React.forwardRef<
     (message) => message.role !== "system" && !message.parentMessageId,
   );
 
+  const shouldShowEmptyState = !isGenerating && filteredMessages.length === 0;
+  const shouldShowAssistantPlaceholder =
+    isGenerating &&
+    filteredMessages.length > 0 &&
+    filteredMessages[filteredMessages.length - 1]?.role !== "assistant";
+
   return (
     <div
       ref={ref}
@@ -138,7 +146,25 @@ const ThreadContentMessages = React.forwardRef<
       data-slot="thread-content-messages"
       {...props}
     >
+      {shouldShowEmptyState && (
+        <div
+          className="flex flex-col items-center justify-center py-16 text-center"
+          data-slot="thread-content-empty"
+        >
+          <p className="text-sm font-medium text-foreground">
+            Start with a prompt to generate a UI
+          </p>
+          <p className="mt-1 max-w-md text-sm text-muted-foreground">
+            Ask a question about your system or describe a dashboard you want.
+            Suggestions below can help you get started.
+          </p>
+        </div>
+      )}
       {filteredMessages.map((message, index) => {
+        const isLastMessage = index === filteredMessages.length - 1;
+        const isMessageLoading =
+          isGenerating && isLastMessage && message.role === "assistant";
+
         return (
           <div
             key={
@@ -151,7 +177,7 @@ const ThreadContentMessages = React.forwardRef<
               role={message.role === "assistant" ? "assistant" : "user"}
               message={message}
               variant={variant}
-              isLoading={isGenerating && index === filteredMessages.length - 1}
+              isLoading={isMessageLoading}
               className={cn(
                 "flex w-full",
                 message.role === "assistant" ? "justify-start" : "justify-end",
@@ -179,6 +205,24 @@ const ThreadContentMessages = React.forwardRef<
           </div>
         );
       })}
+
+      {shouldShowAssistantPlaceholder && (
+        <div
+          className="flex w-full justify-start"
+          data-slot="thread-content-assistant-placeholder"
+        >
+          <div className="flex flex-col w-full">
+            <div className="relative block rounded-3xl px-4 py-2 text-[15px] leading-relaxed font-medium max-w-full">
+              <div className="flex items-center justify-start h-4 py-1 text-muted-foreground">
+                <LoadingIndicator />
+              </div>
+            </div>
+            <div className="pl-4 pt-1">
+              <MessageGenerationStage showLabel />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 });

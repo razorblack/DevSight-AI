@@ -27,6 +27,7 @@ import {
 } from "@tambo-ai/react/mcp";
 import { cva, type VariantProps } from "class-variance-authority";
 import {
+  AlertCircle,
   ArrowUp,
   AtSign,
   FileText,
@@ -533,7 +534,11 @@ const MessageInputInternal = React.forwardRef<
         );
 
         // Cancel the thread to reset loading state
-        await cancel();
+        try {
+          await cancel();
+        } catch (cancelError) {
+          console.error("Failed to cancel thread after submit error", cancelError);
+        }
       } finally {
         setIsSubmitting(false);
       }
@@ -1172,11 +1177,15 @@ const MessageInputError = React.forwardRef<
   return (
     <p
       ref={ref}
-      className={cn("text-sm text-destructive mt-2", className)}
+      className={cn(
+        "mt-2 flex items-start gap-2 rounded-md border border-destructive/20 bg-destructive/5 px-3 py-2 text-sm text-destructive",
+        className,
+      )}
       data-slot="message-input-error"
       {...props}
     >
-      {error?.message ?? submitError ?? imageError}
+      <AlertCircle className="mt-0.5 h-4 w-4 flex-shrink-0" />
+      <span>{error?.message ?? submitError ?? imageError}</span>
     </p>
   );
 });
