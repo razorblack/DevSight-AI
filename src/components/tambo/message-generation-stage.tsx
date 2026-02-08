@@ -2,7 +2,7 @@
 
 import { cn } from "@/lib/utils";
 import { type GenerationStage, useTambo } from "@tambo-ai/react";
-import { Loader2Icon } from "lucide-react";
+import { AlertCircleIcon, Loader2Icon, XCircleIcon } from "lucide-react";
 import * as React from "react";
 
 /**
@@ -47,15 +47,29 @@ export function MessageGenerationStage({
     return null;
   }
 
+  const isErrorStage = stage === "ERROR";
+  const isCancelledStage = stage === "CANCELLED";
+
   return (
     <div
       className={cn(
-        "inline-flex items-center gap-2 px-2 py-1 text-xs rounded-md bg-transparent text-muted-foreground",
+        "inline-flex items-center gap-2 px-2 py-1 text-xs rounded-md bg-transparent",
+        isErrorStage
+          ? "text-destructive"
+          : isCancelledStage
+            ? "text-muted-foreground"
+            : "text-muted-foreground",
         className,
       )}
       {...props}
     >
-      <Loader2Icon className="h-3 w-3 animate-spin" />
+      {isErrorStage ? (
+        <AlertCircleIcon className="h-3 w-3" />
+      ) : isCancelledStage ? (
+        <XCircleIcon className="h-3 w-3" />
+      ) : (
+        <Loader2Icon className="h-3 w-3 animate-spin" />
+      )}
       {showLabel && <span>{label}</span>}
     </div>
   );

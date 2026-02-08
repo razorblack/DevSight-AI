@@ -19,13 +19,21 @@ export default function DictationButton() {
   const [lastProcessedTranscript, setLastProcessedTranscript] =
     useState<string>("");
 
-  const handleStartRecording = () => {
+  const handleStartRecording = async () => {
     setLastProcessedTranscript("");
-    startRecording();
+    try {
+      await startRecording();
+    } catch (error) {
+      console.error("Failed to start recording", error);
+    }
   };
 
-  const handleStopRecording = () => {
-    stopRecording();
+  const handleStopRecording = async () => {
+    try {
+      await stopRecording();
+    } catch (error) {
+      console.error("Failed to stop recording", error);
+    }
   };
 
   useEffect(() => {

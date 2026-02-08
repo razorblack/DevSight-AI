@@ -29,6 +29,10 @@ export default function GeneratePage() {
     setIsLoading(true);
 
     try {
+      // Yield to the browser so the loading indicator can render before
+      // running synchronous schema generation.
+      await new Promise<void>((resolve) => setTimeout(resolve, 0));
+
       const schemaResult = generateUiSchema(prompt);
       
       // Check for errors
@@ -247,6 +251,19 @@ export default function GeneratePage() {
                   </div>
                 )}
               </div>
+            </div>
+          )}
+
+          {/* Empty state */}
+          {!result && !isLoading && !error && (
+            <div className="rounded-lg border border-dashed border-gray-200 bg-gray-50 px-6 py-8 text-center">
+              <p className="text-sm font-medium text-gray-900">
+                No schema generated yet
+              </p>
+              <p className="mt-1 text-sm text-gray-600">
+                Enter a prompt above (or pick an example) to generate a UI
+                schema.
+              </p>
             </div>
           )}
         </div>

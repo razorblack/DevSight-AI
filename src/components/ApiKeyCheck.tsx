@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 interface ApiKeyCheckProps {
   children: React.ReactNode;
@@ -32,21 +32,56 @@ const ApiKeyMissingAlert = () => (
 );
 
 const CopyButton = ({ text }: { text: string }) => {
-  const [showCopied, setShowCopied] = useState(false);
+  const [copyState, setCopyState] = useState<"idle" | "copied" | "error">(
+    "idle",
+  );
 
-  const copyToClipboard = () => {
-    navigator.clipboard.writeText(text);
-    setShowCopied(true);
-    setTimeout(() => setShowCopied(false), 2000);
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const clearTimeoutIfNeeded = () => {
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+      timeoutRef.current = null;
+    }
+  };
+
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+        timeoutRef.current = null;
+      }
+    };
+  }, []);
+
+  const copyToClipboard = async () => {
+    try {
+      if (typeof navigator === "undefined" || !navigator.clipboard?.writeText) {
+        throw new Error("Clipboard API is unavailable");
+      }
+
+      await navigator.clipboard.writeText(text);
+      setCopyState("copied");
+    } catch (error) {
+      console.error("Failed to copy to clipboard", error);
+      setCopyState("error");
+    }
+
+    clearTimeoutIfNeeded();
+    timeoutRef.current = setTimeout(() => setCopyState("idle"), 2000);
   };
 
   return (
     <button
-      onClick={copyToClipboard}
+      onClick={() => {
+        copyToClipboard().catch((error) => {
+          console.error("Copy handler failed", error);
+        });
+      }}
       className="p-2 text-gray-600 hover:text-gray-900 bg-gray-100 rounded transition-colors relative group"
       title="Copy to clipboard"
     >
-      {showCopied ? (
+      {copyState === "copied" ? (
         <svg
           xmlns="http://www.w3.org/2000/svg"
           width="16"
@@ -77,7 +112,11 @@ const CopyButton = ({ text }: { text: string }) => {
         </svg>
       )}
       <span className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white px-2 py-1 rounded text-xs opacity-0 group-hover:opacity-100 transition-opacity">
-        {showCopied ? "Copied!" : "Copy"}
+        {copyState === "copied"
+          ? "Copied!"
+          : copyState === "error"
+            ? "Copy failed"
+            : "Copy"}
       </span>
     </button>
   );

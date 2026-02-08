@@ -9,7 +9,7 @@ import {
   useTambo,
   useTamboSuggestions,
 } from "@tambo-ai/react";
-import { Loader2Icon } from "lucide-react";
+import { AlertCircleIcon, Loader2Icon } from "lucide-react";
 import * as React from "react";
 import { useEffect, useRef } from "react";
 
@@ -183,7 +183,9 @@ const MessageSuggestions = React.forwardRef<
           if (!isNaN(keyNum) && keyNum > 0 && keyNum <= suggestions.length) {
             event.preventDefault();
             const suggestionIndex = keyNum - 1;
-            void accept({ suggestion: suggestions[suggestionIndex] });
+            accept({ suggestion: suggestions[suggestionIndex] }).catch((error) => {
+              console.error("Failed to accept suggestion", error);
+            });
           }
         }
       };
@@ -261,8 +263,14 @@ const MessageSuggestionsStatus = React.forwardRef<
     >
       {/* Error state */}
       {error && (
-        <div className="p-2 rounded-md text-sm bg-red-50 text-red-500">
-          <p>{error.message}</p>
+        <div className="rounded-md border border-destructive/20 bg-destructive/5 px-3 py-2 text-sm text-destructive">
+          <div className="flex items-start gap-2">
+            <AlertCircleIcon className="mt-0.5 h-4 w-4 flex-shrink-0" />
+            <div>
+              <p className="font-medium">Couldn’t generate suggestions</p>
+              <p className="mt-0.5 text-destructive/90">{error.message}</p>
+            </div>
+          </div>
         </div>
       )}
 
@@ -364,9 +372,14 @@ const MessageSuggestionsList = React.forwardRef<
                     isSelected: selectedSuggestionId === suggestion.id,
                   }),
                 )}
-                onClick={async () =>
-                  !isGenerating && (await accept({ suggestion }))
-                }
+                onClick={async () => {
+                  if (isGenerating) return;
+                  try {
+                    await accept({ suggestion });
+                  } catch (error) {
+                    console.error("Failed to accept suggestion", error);
+                  }
+                }}
                 disabled={isGenerating}
                 data-suggestion-id={suggestion.id}
                 data-suggestion-index={index}
