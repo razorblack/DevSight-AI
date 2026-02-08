@@ -1,131 +1,434 @@
-# Tambo Template
+# DevSight AI
 
-This is a starter NextJS app with Tambo hooked up to get your AI app development started quickly.
+> "Ask your system. The UI answers."
 
-## Get Started
+**A generative developer copilot dashboard that creates on-demand tooling UIs from natural language prompts.**
 
-1. Run `npm create-tambo@latest my-tambo-app` for a new project
+[![Built with Tambo](https://img.shields.io/badge/Built%20with-Tambo-7FFFC3)](https://tambo.co)
+[![Next.js](https://img.shields.io/badge/Next.js-15.5-black)](https://nextjs.org/)
+[![React](https://img.shields.io/badge/React-19.1-blue)](https://react.dev/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.x-blue)](https://www.typescriptlang.org/)
 
-2. `npm install`
+## 🎯 Project Overview
 
-3. `npx tambo init`
+DevSight AI is an intelligent developer dashboard that eliminates the gap between asking questions and getting answers. Instead of navigating through static dashboards, predefined views, and multiple tools, developers can simply ask questions in natural language—and watch as the perfect UI materializes in real time.
 
-- or rename `example.env.local` to `.env.local` and add your tambo API key you can get for free [here](https://tambo.co/dashboard).
+**The Result:** A living, adaptive interface that reshapes itself around the developer's problem, not the other way around.
 
-4. Run `npm run dev` and go to `localhost:3000` to use the app!
+## 💡 Motivation
 
-## Customizing
+Modern development teams are drowning in tools, dashboards, and data. When something goes wrong:
 
-### Change what components tambo can control
+- Engineers waste time **switching between multiple monitoring tools**
+- They have to **remember which dashboard shows what metric**
+- They must **navigate complex UIs** to find simple answers
+- **Static dashboards can't adapt** to unique, ad-hoc questions
 
-You can see how components are registered with tambo in `src/lib/tambo.ts`:
+**DevSight AI solves this by turning questions into interfaces.**
+
+Instead of:
+```
+Open Grafana → Navigate to API metrics → Filter by service → Check latency graphs
+Open Datadog → Search logs → Filter errors → Cross-reference with traces
+Open Sentry → Check error rate → Look for patterns
+```
+
+You simply ask:
+```
+"Why is my API slow?"
+```
+
+And DevSight AI instantly generates the exact UI you need—charts showing latency trends, tables of slow endpoints, logs with relevant errors—all in one cohesive, context-aware interface.
+
+## 🧩 What Problem Does DevSight AI Solve?
+
+### The Problem: Static Dashboards Don't Scale with Developer Needs
+
+1. **Tool Fragmentation**: Metrics in Grafana, logs in Datadog, errors in Sentry, traces in Jaeger
+2. **Context Switching**: Every question requires navigating a different tool
+3. **Inflexible UIs**: Dashboards are built for general use cases, not specific problems
+4. **Slow Answers**: Finding an answer takes 5-10 clicks when it should take one question
+
+### The Solution: Generative, Intent-Driven UIs
+
+DevSight AI uses **AI to understand developer intent** and **Tambo to generate the perfect UI** on demand:
+
+- **Ask "Show recent errors"** → AI generates an error log table with filtering
+- **Ask "API latency trends"** → AI generates a line chart with the relevant data
+- **Ask "Which endpoints are slowest?"** → AI generates a ranked table with performance metrics
+- **Ask "Show database query performance"** → AI generates visualizations of slow queries
+
+The UI is **generated, not predefined**—meaning it can adapt to any question, any data source, any context.
+
+## 🚀 How Tambo Powers DevSight AI
+
+[Tambo](https://tambo.co) is the generative UI framework that makes DevSight AI possible. Here's how it works:
+
+### 1. **Component Registration System**
+
+Developers register UI components (charts, tables, cards) with Tambo. Each component has:
+- A **name** and **description** for the AI to understand its purpose
+- A **Zod schema** defining the props the component accepts
+- A **React component** that renders the UI
 
 ```tsx
+// Example: Register a Graph component
 export const components: TamboComponent[] = [
   {
     name: "Graph",
-    description:
-      "A component that renders various types of charts (bar, line, pie) using Recharts. Supports customizable data visualization with labels, datasets, and styling options.",
+    description: "Renders charts (bar, line, pie) with customizable data",
     component: Graph,
-    propsSchema: graphSchema,
+    propsSchema: graphSchema, // Zod schema for type-safe props
   },
-  // Add more components here
 ];
 ```
 
-You can install the graph component into any project with:
+### 2. **Tool System for Data Fetching**
 
-```bash
-npx tambo add graph
-```
-
-The example Graph component demonstrates several key features:
-
-- Different prop types (strings, arrays, enums, nested objects)
-- Multiple chart types (bar, line, pie)
-- Customizable styling (variants, sizes)
-- Optional configurations (title, legend, colors)
-- Data visualization capabilities
-
-Update the `components` array with any component(s) you want tambo to be able to use in a response!
-
-You can find more information about the options [here](https://docs.tambo.co/concepts/generative-interfaces/generative-components)
-
-### Add tools for tambo to use
-
-Tools are defined with `inputSchema` and `outputSchema`:
+Tools are functions that fetch data from external sources (APIs, databases, logs). The AI can invoke these tools to get real-time data:
 
 ```tsx
+// Example: Tool to fetch global population trends
 export const tools: TamboTool[] = [
   {
     name: "globalPopulation",
-    description:
-      "A tool to get global population trends with optional year range filtering",
+    description: "Get global population trends with year range filtering",
     tool: getGlobalPopulationTrend,
     inputSchema: z.object({
       startYear: z.number().optional(),
       endYear: z.number().optional(),
     }),
-    outputSchema: z.array(
-      z.object({
-        year: z.number(),
-        population: z.number(),
-        growthRate: z.number(),
-      }),
-    ),
+    outputSchema: z.array(z.object({
+      year: z.number(),
+      population: z.number(),
+      growthRate: z.number(),
+    })),
   },
 ];
 ```
 
-Find more information about tools [here.](https://docs.tambo.co/concepts/tools)
+### 3. **AI-Powered Intent Understanding**
 
-### The Magic of Tambo Requires the TamboProvider
+When a developer asks a question:
+1. **Tambo's AI** understands the intent (e.g., "show API latency")
+2. The AI **invokes relevant tools** to fetch data (e.g., `getApiLatency()`)
+3. The AI **selects the right components** to visualize the data (e.g., `Graph`)
+4. The AI **generates the props** needed to render the component
+5. **Tambo renders the UI** in real-time
 
-Make sure in the TamboProvider wrapped around your app:
+### 4. **Streaming Architecture**
 
-```tsx
-...
-<TamboProvider
-  apiKey={process.env.NEXT_PUBLIC_TAMBO_API_KEY!}
-  components={components} // Array of components to control
-  tools={tools} // Array of tools it can use
->
-  {children}
-</TamboProvider>
-```
-
-In this example we do this in the `Layout.tsx` file, but you can do it anywhere in your app that is a client component.
-
-### Voice input
-
-The template includes a `DictationButton` component using the `useTamboVoice` hook for speech-to-text input.
-
-### MCP (Model Context Protocol)
-
-The template includes MCP support for connecting to external tools and resources. You can use the MCP hooks from `@tambo-ai/react/mcp`:
-
-- `useTamboMcpPromptList` - List available prompts from MCP servers
-- `useTamboMcpPrompt` - Get a specific prompt
-- `useTamboMcpResourceList` - List available resources
-
-See `src/components/tambo/mcp-components.tsx` for example usage.
-
-### Change where component responses are shown
-
-The components used by tambo are shown alongside the message response from tambo within the chat thread, but you can have the result components show wherever you like by accessing the latest thread message's `renderedComponent` field:
+DevSight AI uses Tambo's **streaming capabilities** to progressively render UIs as the AI generates them:
 
 ```tsx
-const { thread } = useTambo();
-const latestComponent =
-  thread?.messages[thread.messages.length - 1]?.renderedComponent;
-
-return (
-  <div>
-    {latestComponent && (
-      <div className="my-custom-wrapper">{latestComponent}</div>
-    )}
-  </div>
-);
+const { isStreaming } = useTamboStreaming();
 ```
 
-For more detailed documentation, visit [Tambo's official docs](https://docs.tambo.co).
+This creates a **smooth, real-time experience** where developers see the UI being built as they ask questions.
+
+## 🏗️ Architecture
+
+DevSight AI follows a **three-layer architecture**:
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                      User Interface Layer                    │
+│  (Chat Interface, Message Threads, Interactive Components)  │
+└───────────────────────┬─────────────────────────────────────┘
+                        │
+                        ▼
+┌─────────────────────────────────────────────────────────────┐
+│                   Tambo AI Orchestration Layer              │
+│  • Intent Understanding (Natural Language → Actions)        │
+│  • Component Selection (Choose the right UI for the task)   │
+│  • Tool Invocation (Fetch data from external sources)       │
+│  • Props Generation (Create type-safe component props)      │
+│  • Streaming Renderer (Progressive UI updates)              │
+└───────────────────────┬─────────────────────────────────────┘
+                        │
+                        ▼
+┌─────────────────────────────────────────────────────────────┐
+│                    Data & Component Layer                    │
+│  • Registered Components (Graph, DataCard, Tables, etc.)    │
+│  • Registered Tools (Data fetchers, API clients)            │
+│  • External Data Sources (Metrics, Logs, Traces, APIs)      │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### Key Architecture Patterns
+
+#### **1. Provider Pattern** (`TamboProvider`)
+Wraps the entire app and provides:
+- Tambo API key for authentication
+- Registered components available to the AI
+- Registered tools for data fetching
+
+#### **2. Component Registration** (`src/lib/tambo.ts`)
+Central configuration where:
+- All generative components are registered
+- All data-fetching tools are registered
+- Zod schemas ensure type safety
+
+#### **3. Streaming Hooks** (`useTamboStreaming`, `useTamboThread`)
+Real-time state management:
+- Stream AI responses as they're generated
+- Manage conversation threads
+- Handle user input and suggestions
+
+#### **4. Type-Safe Props** (Zod Schemas)
+Every component has a Zod schema:
+- AI generates valid, type-safe props
+- Runtime validation prevents errors
+- TypeScript integration for compile-time checks
+
+## 📁 Project Structure
+
+```
+DevSight-AI/
+├── src/
+│   ├── app/                     # Next.js App Router pages
+│   │   ├── chat/                # Main chat interface
+│   │   ├── interactables/       # Interactive components demo
+│   │   ├── layout.tsx           # Root layout with TamboProvider
+│   │   └── page.tsx             # Landing page
+│   │
+│   ├── components/
+│   │   ├── tambo/               # Tambo-specific components
+│   │   │   ├── graph.tsx        # Recharts data visualization
+│   │   │   ├── message*.tsx     # Chat UI components
+│   │   │   └── thread*.tsx      # Thread management UI
+│   │   ├── ui/                  # Reusable UI components
+│   │   └── ApiKeyCheck.tsx      # API key validation
+│   │
+│   ├── lib/
+│   │   ├── tambo.ts             # **CENTRAL CONFIG**: Component & tool registration
+│   │   ├── thread-hooks.ts      # Custom thread management hooks
+│   │   └── utils.ts             # Utility functions
+│   │
+│   └── services/
+│       └── population-stats.ts  # Example data service (demo)
+│
+├── public/                      # Static assets
+├── CLAUDE.md                    # AI assistant guidance
+├── example.env.local            # Environment variables template
+├── package.json                 # Dependencies and scripts
+└── README.md                    # This file
+```
+
+## 🛠️ Technology Stack
+
+| Category | Technology | Purpose |
+|----------|------------|---------|
+| **Framework** | Next.js 15.5 | React framework with App Router |
+| **UI Library** | React 19.1 | Component-based UI |
+| **Language** | TypeScript 5.x | Type safety and developer experience |
+| **AI Framework** | Tambo AI SDK | Generative UI orchestration |
+| **Styling** | Tailwind CSS v4 | Utility-first CSS with dark mode |
+| **Schema Validation** | Zod | Runtime type validation |
+| **Charts** | Recharts 3.5 | Data visualization |
+| **Icons** | Lucide React | Icon library |
+| **Animations** | Framer Motion | Smooth UI transitions |
+
+## 📦 Installation & Local Setup
+
+### Prerequisites
+
+- **Node.js 18+** (recommended: 20+)
+- **npm** or **yarn**
+- **Tambo API Key** (get one free at [tambo.co/dashboard](https://tambo.co/dashboard))
+
+### Step 1: Clone the Repository
+
+```bash
+git clone https://github.com/razorblack/DevSight-AI.git
+cd DevSight-AI
+```
+
+### Step 2: Install Dependencies
+
+```bash
+npm install
+```
+
+### Step 3: Configure Environment Variables
+
+Rename `example.env.local` to `.env.local`:
+
+```bash
+mv example.env.local .env.local
+```
+
+Add your Tambo API key to `.env.local`:
+
+```env
+NEXT_PUBLIC_TAMBO_API_KEY=your-api-key-here
+```
+
+Or use the Tambo CLI to initialize:
+
+```bash
+npx tambo init
+```
+
+### Step 4: Start the Development Server
+
+```bash
+npm run dev
+```
+
+Open [http://localhost:3000](http://localhost:3000) in your browser.
+
+### Step 5: Try It Out!
+
+1. **Visit `/chat`** to start a conversation
+2. **Ask questions** like:
+   - "Show me global population trends"
+   - "Display top countries by population"
+   - "Create a graph of population growth rates"
+3. **Watch Tambo generate the UI** in real-time!
+
+## 🎨 Customizing DevSight AI
+
+### Adding New Components
+
+1. **Create a new component** in `src/components/tambo/`:
+
+```tsx
+// src/components/tambo/my-component.tsx
+import { z } from "zod";
+
+export const myComponentSchema = z.object({
+  title: z.string(),
+  data: z.array(z.string()),
+});
+
+type MyComponentProps = z.infer<typeof myComponentSchema>;
+
+export const MyComponent = ({ title, data }: MyComponentProps) => {
+  return (
+    <div>
+      <h2>{title}</h2>
+      <ul>
+        {data.map((item, i) => <li key={i}>{item}</li>)}
+      </ul>
+    </div>
+  );
+};
+```
+
+2. **Register the component** in `src/lib/tambo.ts`:
+
+```tsx
+import { MyComponent, myComponentSchema } from "@/components/tambo/my-component";
+
+export const components: TamboComponent[] = [
+  // ... existing components
+  {
+    name: "MyComponent",
+    description: "Displays a list of items with a title",
+    component: MyComponent,
+    propsSchema: myComponentSchema,
+  },
+];
+```
+
+### Adding New Tools
+
+1. **Create a tool function** in `src/services/`:
+
+```tsx
+// src/services/my-service.ts
+export const fetchData = async (params: { query: string }) => {
+  // Fetch data from your API/database
+  const data = await fetch(`/api/data?q=${params.query}`);
+  return data.json();
+};
+```
+
+2. **Register the tool** in `src/lib/tambo.ts`:
+
+```tsx
+import { fetchData } from "@/services/my-service";
+
+export const tools: TamboTool[] = [
+  // ... existing tools
+  {
+    name: "fetchData",
+    description: "Fetches data based on a search query",
+    tool: fetchData,
+    inputSchema: z.object({
+      query: z.string(),
+    }),
+    outputSchema: z.array(z.any()),
+  },
+];
+```
+
+## 🚀 Deployment
+
+DevSight AI is built with Next.js and can be deployed to any platform that supports Next.js:
+
+### Deploy to Vercel (Recommended)
+
+1. **Push your code to GitHub**
+2. **Import your repository** on [vercel.com](https://vercel.com)
+3. **Add environment variables**:
+   - `NEXT_PUBLIC_TAMBO_API_KEY`
+4. **Deploy!**
+
+Vercel will automatically detect Next.js and configure the build.
+
+### Deploy to Other Platforms
+
+DevSight AI can also be deployed to:
+- **Netlify**: Use the Next.js build plugin
+- **AWS Amplify**: Connect your GitHub repo
+- **Docker**: Use the included Dockerfile (if available)
+- **Self-hosted**: Run `npm run build && npm run start`
+
+### Production Build
+
+```bash
+npm run build
+npm run start
+```
+
+The production build is optimized and ready for deployment.
+
+## 🌐 Live Demo
+
+> 🚧 **Coming Soon**: Live demo link will be added after deployment
+
+Check back soon for a live, interactive demo of DevSight AI!
+
+## 📚 Additional Resources
+
+- **Tambo Documentation**: [docs.tambo.co](https://docs.tambo.co)
+- **Tambo Dashboard**: [tambo.co/dashboard](https://tambo.co/dashboard)
+- **Next.js Documentation**: [nextjs.org/docs](https://nextjs.org/docs)
+- **Tambo CLI**: Run `npx tambo help` for available commands
+
+## 🤝 Contributing
+
+Contributions are welcome! Feel free to:
+- Report bugs
+- Suggest features
+- Submit pull requests
+
+## 📄 License
+
+This project is open source and available under the [MIT License](LICENSE).
+
+## 🎯 MVP Completion Checklist
+
+DevSight AI MVP is considered complete when:
+
+- ✅ A user can describe a developer tool in text
+- ✅ AI generates a structured UI schema
+- ✅ Tambo dynamically renders the UI
+- ⏳ App is deployed and accessible via a public URL
+- ✅ README clearly explains the project
+
+---
+
+**Built with ❤️ using [Tambo AI](https://tambo.co)**
