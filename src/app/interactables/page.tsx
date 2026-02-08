@@ -19,13 +19,18 @@ import { SettingsPanel } from "./components/settings-panel";
 
 export default function InteractablesPage() {
   const [isChatOpen, setIsChatOpen] = useState(true);
+  const tamboUrl =
+    process.env.NEXT_PUBLIC_TAMBO_URL ??
+    (typeof window !== "undefined"
+      ? `${window.location.origin}/api/tambo`
+      : undefined);
 
   return (
     <TamboProvider
-      apiKey={process.env.NEXT_PUBLIC_TAMBO_API_KEY!}
+      apiKey="proxy"
       components={components}
       tools={tools}
-      tamboUrl={process.env.NEXT_PUBLIC_TAMBO_URL}
+      tamboUrl={tamboUrl}
     >
       <div className="flex h-screen bg-gray-50">
         {/* Chat Sidebar */}

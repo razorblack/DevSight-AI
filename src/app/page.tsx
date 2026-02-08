@@ -92,6 +92,8 @@ const KeyFilesSection = () => (
 );
 
 export default function Home() {
+  const isInitialized = Boolean(process.env.TAMBO_API_KEY);
+
   return (
     <div className="min-h-screen p-8 flex flex-col items-center justify-center font-[family-name:var(--font-geist-sans)]">
       <main className="max-w-2xl w-full space-y-8">
@@ -111,7 +113,7 @@ export default function Home() {
         <div className="w-full space-y-8">
           <div className="bg-white px-8 py-4">
             <h2 className="text-xl font-semibold mb-4">Setup Checklist</h2>
-            <ApiKeyCheck>
+            <ApiKeyCheck isInitialized={isInitialized}>
               <div className="flex gap-4 flex-wrap">
                 <a
                   href="/chat"

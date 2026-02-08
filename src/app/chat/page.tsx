@@ -9,22 +9,28 @@ import { TamboProvider } from "@tambo-ai/react";
  * Home page component that renders the Tambo chat interface.
  *
  * @remarks
- * The `NEXT_PUBLIC_TAMBO_URL` environment variable specifies the URL of the Tambo server.
- * You do not need to set it if you are using the default Tambo server.
- * It is only required if you are running the API server locally.
+* By default this page points Tambo's SDK at the local proxy route (`/api/tambo`).
+*
+* You can override it with `NEXT_PUBLIC_TAMBO_URL` (must be an absolute URL),
+* which is useful when running a custom Tambo server.
  *
  * @see {@link https://github.com/tambo-ai/tambo/blob/main/CONTRIBUTING.md} for instructions on running the API server locally.
  */
 export default function Home() {
   // Load MCP server configurations
   const mcpServers = useMcpServers();
+  const tamboUrl =
+    process.env.NEXT_PUBLIC_TAMBO_URL ??
+    (typeof window !== "undefined"
+      ? `${window.location.origin}/api/tambo`
+      : undefined);
 
   return (
     <TamboProvider
-      apiKey={process.env.NEXT_PUBLIC_TAMBO_API_KEY!}
+      apiKey="proxy"
       components={components}
       tools={tools}
-      tamboUrl={process.env.NEXT_PUBLIC_TAMBO_URL}
+      tamboUrl={tamboUrl}
       mcpServers={mcpServers}
     >
       <div className="h-screen">

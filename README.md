@@ -261,7 +261,7 @@ mv example.env.local .env.local
 Add your Tambo API key to `.env.local`:
 
 ```env
-NEXT_PUBLIC_TAMBO_API_KEY=your-api-key-here
+TAMBO_API_KEY=your-api-key-here
 ```
 
 Or use the Tambo CLI to initialize:
@@ -373,7 +373,7 @@ DevSight AI is built with Next.js and can be deployed to any platform that suppo
 1. **Push your code to GitHub**
 2. **Import your repository** on [vercel.com](https://vercel.com)
 3. **Add environment variables**:
-   - `NEXT_PUBLIC_TAMBO_API_KEY`
+   - `TAMBO_API_KEY`
 4. **Deploy!**
 
 Vercel will automatically detect Next.js and configure the build.

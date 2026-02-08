@@ -4,6 +4,7 @@ import { useState } from "react";
 
 interface ApiKeyCheckProps {
   children: React.ReactNode;
+  isInitialized: boolean;
 }
 
 const ApiKeyMissingAlert = () => (
@@ -24,7 +25,8 @@ const ApiKeyMissingAlert = () => (
         tambo.co/cli-auth
       </a>{" "}
       to get your API key and set it in{" "}
-      <code className="bg-yellow-100 px-2 py-1 rounded">.env.local</code>
+      <code className="bg-yellow-100 px-2 py-1 rounded">.env.local</code> as{" "}
+      <code className="bg-yellow-100 px-2 py-1 rounded">TAMBO_API_KEY</code>
     </p>
   </div>
 );
@@ -81,8 +83,8 @@ const CopyButton = ({ text }: { text: string }) => {
   );
 };
 
-export function ApiKeyCheck({ children }: ApiKeyCheckProps) {
-  const isApiKeyMissing = !process.env.NEXT_PUBLIC_TAMBO_API_KEY;
+export function ApiKeyCheck({ children, isInitialized }: ApiKeyCheckProps) {
+  const isApiKeyMissing = !isInitialized;
 
   return (
     <div className="flex items-start gap-4">
