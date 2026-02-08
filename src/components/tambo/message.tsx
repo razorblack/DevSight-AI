@@ -1026,7 +1026,12 @@ const MessageRenderedComponentArea = React.forwardRef<
     if (React.isValidElement(message.renderedComponent)) {
       const componentType = message.renderedComponent.type;
       if (typeof componentType === "function") {
-        return componentType.displayName || componentType.name || "Component";
+        // Type assertion for displayName which may not be on all function components
+        const funcType = componentType as {
+          displayName?: string;
+          name?: string;
+        };
+        return funcType.displayName || funcType.name || "Component";
       }
       if (typeof componentType === "string") {
         return componentType;
