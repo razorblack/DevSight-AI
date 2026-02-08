@@ -30,6 +30,7 @@ import {
   ThreadHistoryNewButton,
   ThreadHistorySearch,
 } from "@/components/tambo/thread-history";
+import { PromptHistory } from "@/components/tambo/prompt-history";
 import { useMergeRefs } from "@/lib/thread-hooks";
 import type { Suggestion } from "@tambo-ai/react";
 import type { VariantProps } from "class-variance-authority";
@@ -120,6 +121,8 @@ export const MessageThreadFull = React.forwardRef<
               <MessageInputMcpResourceButton />
               {/* Uncomment this to enable client-side MCP config modal button */}
               <MessageInputMcpConfigButton />
+              <div className="flex-1" />
+              <PromptHistory />
               <MessageInputSubmitButton />
             </MessageInputToolbar>
             <MessageInputError />
