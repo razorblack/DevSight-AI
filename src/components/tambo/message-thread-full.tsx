@@ -70,21 +70,21 @@ export const MessageThreadFull = React.forwardRef<
   const defaultSuggestions: Suggestion[] = [
     {
       id: "suggestion-1",
-      title: "Get started",
-      detailedSuggestion: "What can you help me with?",
-      messageId: "welcome-query",
+      title: "📊 Population Trends",
+      detailedSuggestion: "Show me global population trends over the last 20 years as a line chart",
+      messageId: "population-trends-query",
     },
     {
       id: "suggestion-2",
-      title: "Learn more",
-      detailedSuggestion: "Tell me about your capabilities.",
-      messageId: "capabilities-query",
+      title: "🌍 Top Countries",
+      detailedSuggestion: "Display the top 10 countries by population as a bar chart",
+      messageId: "top-countries-query",
     },
     {
       id: "suggestion-3",
-      title: "Examples",
-      detailedSuggestion: "Show me some example queries I can try.",
-      messageId: "examples-query",
+      title: "📈 Growth Analysis",
+      detailedSuggestion: "Show me which countries have the highest population growth rates",
+      messageId: "growth-analysis-query",
     },
   ];
 
