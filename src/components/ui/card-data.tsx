@@ -51,9 +51,11 @@ export type DataCardProps = z.infer<typeof dataCardSchema> &
  *
  * A component that displays options as clickable cards with links and summaries
  * with the ability to select multiple items.
+ * Optimized with React.memo for performance
  */
-export const DataCard = React.forwardRef<HTMLDivElement, DataCardProps>(
-  ({ title, options, className, ...props }, ref) => {
+export const DataCard = React.memo(
+  React.forwardRef<HTMLDivElement, DataCardProps>(
+    ({ title, options, className, ...props }, ref) => {
     // Initialize Tambo component state
     const [state, setState] = useTamboComponentState<DataCardState>(
       `data-card`,
@@ -159,7 +161,7 @@ export const DataCard = React.forwardRef<HTMLDivElement, DataCardProps>(
         </div>
       </div>
     );
-  },
+  }),
 );
 
 DataCard.displayName = "DataCard";

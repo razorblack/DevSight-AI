@@ -16,6 +16,7 @@ import { Check, ChevronDown, ExternalLink, Loader2, X } from "lucide-react";
 import * as React from "react";
 import { useState } from "react";
 import { Streamdown } from "streamdown";
+import { DynamicComponentRenderer } from "./dynamic-component-renderer";
 
 /**
  * Converts message content to markdown format for rendering with streamdown.
@@ -983,6 +984,7 @@ export type MessageRenderedComponentAreaProps =
  * Displays the `renderedComponent` associated with an assistant message.
  * Shows a button to view in canvas if a canvas space exists, otherwise renders inline.
  * Only renders if the message role is 'assistant' and `message.renderedComponent` exists.
+ * Now includes error handling, validation, and timeout protection.
  * @component Message.RenderedComponentArea
  */
 const MessageRenderedComponentArea = React.forwardRef<
@@ -1019,6 +1021,27 @@ const MessageRenderedComponentArea = React.forwardRef<
     return null;
   }
 
+  // Extract component name from the rendered component if possible
+  const getComponentName = () => {
+    if (React.isValidElement(message.renderedComponent)) {
+      const componentType = message.renderedComponent.type;
+      if (typeof componentType === "function") {
+        // Type assertion for displayName which may not be on all function components
+        const funcType = componentType as {
+          displayName?: string;
+          name?: string;
+        };
+        return funcType.displayName || funcType.name || "Component";
+      }
+      if (typeof componentType === "string") {
+        return componentType;
+      }
+    }
+    return undefined;
+  };
+
+  const componentName = getComponentName();
+
   return (
     <div
       ref={ref}
@@ -1050,7 +1073,24 @@ const MessageRenderedComponentArea = React.forwardRef<
             </button>
           </div>
         ) : (
-          <div className="w-full pt-2 px-2">{message.renderedComponent}</div>
+          <DynamicComponentRenderer
+            component={message.renderedComponent}
+            componentName={componentName}
+            className="w-full pt-2 px-2"
+            timeout={10000}
+            validateComponent={true}
+            onRenderSuccess={() => {
+              console.debug(
+                `Successfully rendered component: ${componentName || "unknown"}`,
+              );
+            }}
+            onRenderError={(error) => {
+              console.error(
+                `Failed to render component: ${componentName || "unknown"}`,
+                error,
+              );
+            }}
+          />
         ))}
     </div>
   );
