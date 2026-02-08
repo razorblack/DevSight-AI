@@ -9,11 +9,15 @@ function normalizePrompt(input: string) {
     .replace(/\s+/g, " ");
 }
 
+const [apiSlowPrompt, recentErrorsPrompt, deployHealthPrompt] = SUPPORTED_PROMPTS;
+
 const PROMPTS = {
-  apiSlow: normalizePrompt(SUPPORTED_PROMPTS[0]),
-  recentErrors: normalizePrompt(SUPPORTED_PROMPTS[1]),
-  deployHealth: normalizePrompt(SUPPORTED_PROMPTS[2]),
+  apiSlow: normalizePrompt(apiSlowPrompt),
+  recentErrors: normalizePrompt(recentErrorsPrompt),
+  deployHealth: normalizePrompt(deployHealthPrompt),
 } as const;
+
+const supportedPromptsLabel = SUPPORTED_PROMPTS.join(" / ");
 
 export function generateUi(prompt: string): GenerateUiResponse {
   const normalized = normalizePrompt(prompt);
@@ -217,7 +221,7 @@ export function generateUi(prompt: string): GenerateUiResponse {
           props: {
             title: "Unsupported prompt",
             description:
-              "This MVP only supports: Why is my API slow? / Show recent errors / Deployment health summary",
+              `This MVP only supports: ${supportedPromptsLabel}`,
           },
         },
       ],
