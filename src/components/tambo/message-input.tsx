@@ -11,6 +11,7 @@ import {
   TooltipProvider,
 } from "@/components/tambo/suggestions-tooltip";
 import { cn } from "@/lib/utils";
+import { usePromptHistory } from "@/lib/prompt-history";
 import {
   useIsTamboTokenUpdating,
   useTamboThread,
@@ -459,6 +460,7 @@ const MessageInputInternal = React.forwardRef<
     removeImage,
   } = useTamboThreadInput();
   const { cancel, thread } = useTamboThread();
+  const { addPrompt } = usePromptHistory();
   const [displayValue, setDisplayValue] = React.useState("");
   const [submitError, setSubmitError] = React.useState<string | null>(null);
   const [imageError, setImageError] = React.useState<string | null>(null);
@@ -512,6 +514,8 @@ const MessageInputInternal = React.forwardRef<
           streamResponse: true,
           resourceNames: latestResourceNames,
         });
+        // Add prompt to history on successful submission
+        addPrompt(value);
         setValue("");
         // Clear only the images that were staged when submission started so
         // any images added while the request was in-flight are preserved.
@@ -555,6 +559,7 @@ const MessageInputInternal = React.forwardRef<
       removeImage,
       editorRef,
       thread.id,
+      addPrompt,
     ],
   );
 

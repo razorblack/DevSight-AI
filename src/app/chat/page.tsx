@@ -3,6 +3,7 @@
 import { MessageThreadFull } from "@/components/tambo/message-thread-full";
 import { useMcpServers } from "@/components/tambo/mcp-config-modal";
 import { components, tools } from "@/lib/tambo";
+import { PromptHistoryProvider } from "@/lib/prompt-history";
 import { TamboProvider } from "@tambo-ai/react";
 
 /**
@@ -33,9 +34,11 @@ export default function Home() {
       tamboUrl={tamboUrl}
       mcpServers={mcpServers}
     >
-      <div className="h-screen">
-        <MessageThreadFull className="max-w-4xl mx-auto"/>
-      </div>
+      <PromptHistoryProvider>
+        <div className="h-screen">
+          <MessageThreadFull className="max-w-4xl mx-auto"/>
+        </div>
+      </PromptHistoryProvider>
     </TamboProvider>
   );
 }
