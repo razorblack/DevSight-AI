@@ -114,6 +114,12 @@ export default function Home() {
             <ApiKeyCheck>
               <div className="flex gap-4 flex-wrap">
                 <a
+                  href="/generate"
+                  className="px-6 py-3 rounded-md font-medium shadow-sm transition-colors text-lg mt-4 bg-[#A17FFF] hover:bg-[#9070e6] text-white"
+                >
+                  Generate Tool →
+                </a>
+                <a
                   href="/chat"
                   className="px-6 py-3 rounded-md font-medium shadow-sm transition-colors text-lg mt-4 bg-[#7FFFC3] hover:bg-[#72e6b0] text-gray-800"
                 >
