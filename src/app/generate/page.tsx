@@ -2,13 +2,23 @@
 
 import { generateUiSchema, type GenerateUiSchemaResult } from "@/lib/ui-schema-generator";
 import { AlertCircle, Loader2, CheckCircle2, Sparkles } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export default function GeneratePage() {
   const [prompt, setPrompt] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [result, setResult] = useState<GenerateUiSchemaResult | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [copySuccess, setCopySuccess] = useState(false);
+  const [copyError, setCopyError] = useState<string | null>(null);
+
+  // Auto-clear copy success message after 2 seconds
+  useEffect(() => {
+    if (copySuccess) {
+      const timeoutId = setTimeout(() => setCopySuccess(false), 2000);
+      return () => clearTimeout(timeoutId);
+    }
+  }, [copySuccess]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -19,9 +29,6 @@ export default function GeneratePage() {
     setIsLoading(true);
 
     try {
-      // Simulate a brief delay for better UX (schema generation is instant)
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
       const schemaResult = generateUiSchema(prompt);
       
       // Check for errors
@@ -202,25 +209,43 @@ export default function GeneratePage() {
               )}
 
               {/* Action Buttons */}
-              <div className="flex gap-3">
-                <button
-                  onClick={() => {
-                    setPrompt("");
-                    setResult(null);
-                    setError(null);
-                  }}
-                  className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium py-2 px-4 rounded-lg transition-colors"
-                >
-                  Clear & Start Over
-                </button>
-                <button
-                  onClick={() => {
-                    navigator.clipboard.writeText(JSON.stringify(result.schema, null, 2));
-                  }}
-                  className="flex-1 bg-blue-100 hover:bg-blue-200 text-blue-700 font-medium py-2 px-4 rounded-lg transition-colors"
-                >
-                  Copy Schema JSON
-                </button>
+              <div className="space-y-2">
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => {
+                      setPrompt("");
+                      setResult(null);
+                      setError(null);
+                      setCopySuccess(false);
+                      setCopyError(null);
+                    }}
+                    className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium py-2 px-4 rounded-lg transition-colors"
+                  >
+                    Clear & Start Over
+                  </button>
+                  <button
+                    onClick={async () => {
+                      try {
+                        setCopyError(null);
+                        await navigator.clipboard.writeText(JSON.stringify(result.schema, null, 2));
+                        setCopySuccess(true);
+                      } catch (err) {
+                        console.error("Failed to copy:", err);
+                        setCopyError("Failed to copy to clipboard. Please try selecting and copying manually.");
+                      }
+                    }}
+                    className="flex-1 bg-blue-100 hover:bg-blue-200 text-blue-700 font-medium py-2 px-4 rounded-lg transition-colors"
+                  >
+                    {copySuccess ? "Copied! ✓" : "Copy Schema JSON"}
+                  </button>
+                </div>
+                
+                {/* Copy Error Display */}
+                {copyError && (
+                  <div className="p-3 border border-red-200 bg-red-50 rounded-lg">
+                    <p className="text-sm text-red-700">{copyError}</p>
+                  </div>
+                )}
               </div>
             </div>
           )}
