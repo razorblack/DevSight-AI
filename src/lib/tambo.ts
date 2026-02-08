@@ -18,6 +18,8 @@ import type { TamboComponent } from "@tambo-ai/react";
 import { TamboTool } from "@tambo-ai/react";
 import { z } from "zod";
 
+export type RegisteredComponentName = "Graph" | "DataCard";
+
 /**
  * tools
  *

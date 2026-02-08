@@ -1,3 +1,5 @@
+import type { RegisteredComponentName } from "./tambo";
+
 export type JsonPrimitive = string | number | boolean | null;
 
 export type JsonValue = JsonPrimitive | JsonObject | JsonArray;
@@ -9,7 +11,7 @@ export type JsonArray = JsonValue[];
 export type UiSchemaVersion = 1;
 
 export type UiSchemaComponent = {
-  componentName: string;
+  componentName: RegisteredComponentName;
   props: JsonObject;
 };
 
@@ -209,7 +211,7 @@ function buildSchemaForIntent(intent: Intent, prompt: string, diagnostic: Schema
   }
 }
 
-function wrapSingleComponent(componentName: string, props: JsonObject): UiSchemaV1 {
+function wrapSingleComponent(componentName: RegisteredComponentName, props: JsonObject): UiSchemaV1 {
   return {
     schemaVersion: 1,
     components: [{ componentName, props }],
@@ -348,6 +350,15 @@ function containsAny(haystack: string, needles: string[]): boolean {
 }
 
 function containsKeyword(haystack: string, needle: string): boolean {
+  // This matcher is optimized for single-token keywords.
+  // If callers pass phrases, require all tokens to appear.
+  if (needle.includes(" ")) {
+    return needle
+      .split(/\s+/)
+      .filter(Boolean)
+      .every((part) => containsKeyword(haystack, part));
+  }
+
   const cacheKey = needle.trim().toLowerCase();
   const cached = KEYWORD_REGEX_CACHE.get(cacheKey);
   if (cached) return cached.test(haystack);
