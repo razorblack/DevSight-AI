@@ -49,16 +49,6 @@ export function PromptHistoryProvider({ children }: { children: React.ReactNode 
     loadHistory();
   }, []);
 
-  // Save history to sessionStorage whenever it changes
-  const saveHistory = useCallback((newHistory: PromptHistoryItem[]) => {
-    try {
-      sessionStorage.setItem(PROMPT_HISTORY_KEY, JSON.stringify(newHistory));
-      setHistory(newHistory);
-    } catch (error) {
-      console.error("Failed to save prompt history:", error);
-    }
-  }, []);
-
   /**
    * Add a new prompt to history
    */
@@ -67,7 +57,7 @@ export function PromptHistoryProvider({ children }: { children: React.ReactNode 
       if (!text.trim()) return;
 
       const newItem: PromptHistoryItem = {
-        id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+        id: `${Date.now()}-${Math.random().toString(36).slice(2, 11)}`,
         text: text.trim(),
         timestamp: Date.now(),
       };
@@ -75,11 +65,16 @@ export function PromptHistoryProvider({ children }: { children: React.ReactNode 
       setHistory((prev) => {
         // Add new item at the beginning and keep only the most recent MAX_HISTORY_SIZE items
         const newHistory = [newItem, ...prev].slice(0, MAX_HISTORY_SIZE);
-        saveHistory(newHistory);
+        // Save to sessionStorage directly
+        try {
+          sessionStorage.setItem(PROMPT_HISTORY_KEY, JSON.stringify(newHistory));
+        } catch (error) {
+          console.error("Failed to save prompt history:", error);
+        }
         return newHistory;
       });
     },
-    [saveHistory]
+    []
   );
 
   /**
@@ -101,11 +96,16 @@ export function PromptHistoryProvider({ children }: { children: React.ReactNode 
     (id: string) => {
       setHistory((prev) => {
         const newHistory = prev.filter((item) => item.id !== id);
-        saveHistory(newHistory);
+        // Save to sessionStorage directly
+        try {
+          sessionStorage.setItem(PROMPT_HISTORY_KEY, JSON.stringify(newHistory));
+        } catch (error) {
+          console.error("Failed to save prompt history:", error);
+        }
         return newHistory;
       });
     },
-    [saveHistory]
+    []
   );
 
   const value = React.useMemo(

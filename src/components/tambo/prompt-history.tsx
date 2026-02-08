@@ -22,6 +22,7 @@ export const PromptHistory = React.forwardRef<HTMLDivElement, PromptHistoryProps
     const { history, clearHistory } = usePromptHistory();
     const { setValue } = useTamboThreadInput();
     const [isOpen, setIsOpen] = React.useState(false);
+    const [showConfirmClear, setShowConfirmClear] = React.useState(false);
 
     const handlePromptClick = React.useCallback(
       (text: string) => {
@@ -33,9 +34,8 @@ export const PromptHistory = React.forwardRef<HTMLDivElement, PromptHistoryProps
     );
 
     const handleClearHistory = React.useCallback(() => {
-      if (window.confirm("Are you sure you want to clear all prompt history?")) {
-        clearHistory();
-      }
+      clearHistory();
+      setShowConfirmClear(false);
     }, [clearHistory]);
 
     const formatTimestamp = (timestamp: number) => {
@@ -94,7 +94,7 @@ export const PromptHistory = React.forwardRef<HTMLDivElement, PromptHistoryProps
               <div className="flex items-center gap-2">
                 {history.length > 0 && (
                   <button
-                    onClick={handleClearHistory}
+                    onClick={() => setShowConfirmClear(true)}
                     className="p-2 rounded-md hover:bg-backdrop transition-colors"
                     title="Clear all history"
                   >
@@ -157,11 +157,46 @@ export const PromptHistory = React.forwardRef<HTMLDivElement, PromptHistoryProps
           </div>
         )}
 
+        {/* Confirmation Dialog */}
+        {showConfirmClear && (
+          <div
+            className={cn(
+              "fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50",
+              "w-full max-w-md",
+              "bg-background border border-gray-300 dark:border-zinc-600",
+              "rounded-lg shadow-2xl",
+              "p-6"
+            )}
+          >
+            <h3 className="text-lg font-semibold mb-2">Clear History?</h3>
+            <p className="text-sm text-gray-600 dark:text-gray-400 mb-6">
+              Are you sure you want to clear all prompt history? This action cannot be undone.
+            </p>
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => setShowConfirmClear(false)}
+                className="px-4 py-2 rounded-md bg-container hover:bg-backdrop border border-gray-300 dark:border-zinc-600 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleClearHistory}
+                className="px-4 py-2 rounded-md bg-red-600 hover:bg-red-700 text-white transition-colors"
+              >
+                Clear All
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* Backdrop */}
-        {isOpen && (
+        {(isOpen || showConfirmClear) && (
           <div
             className="fixed inset-0 bg-black/50 z-40"
-            onClick={() => setIsOpen(false)}
+            onClick={() => {
+              setIsOpen(false);
+              setShowConfirmClear(false);
+            }}
           />
         )}
       </>
