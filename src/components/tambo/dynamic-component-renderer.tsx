@@ -10,6 +10,13 @@ import {
 } from "./component-error-boundary";
 
 /**
+ * Delay in milliseconds to allow React to complete the mounting phase
+ * before marking the component as ready. This prevents race conditions
+ * where the component might still be initializing when we check its state.
+ */
+const REACT_MOUNT_DELAY = 100;
+
+/**
  * Props for DynamicComponentRenderer
  */
 interface DynamicComponentRendererProps {
@@ -83,8 +90,9 @@ export const DynamicComponentRenderer = React.forwardRef<
     const timeoutRef = React.useRef<NodeJS.Timeout | null>(null);
     const mountedRef = React.useRef(false);
 
-    // Validate component on mount and when component changes
+    // Validate component and setup timeout on mount or when component changes
     React.useEffect(() => {
+      // Validate component structure
       if (shouldValidate && !isValidComponent(component)) {
         setRenderState("invalid");
         return;
@@ -92,12 +100,12 @@ export const DynamicComponentRenderer = React.forwardRef<
 
       // Start timeout timer
       timeoutRef.current = setTimeout(() => {
-        if (mountedRef.current && renderState === "loading") {
+        if (mountedRef.current) {
           setRenderState("timeout");
         }
       }, timeout);
 
-      // Mark as ready after a small delay to allow React to mount
+      // Mark as ready after React completes mounting phase
       const readyTimer = setTimeout(() => {
         if (mountedRef.current) {
           setRenderState("ready");
@@ -105,7 +113,7 @@ export const DynamicComponentRenderer = React.forwardRef<
             onRenderSuccess();
           }
         }
-      }, 100);
+      }, REACT_MOUNT_DELAY);
 
       mountedRef.current = true;
 
@@ -117,7 +125,9 @@ export const DynamicComponentRenderer = React.forwardRef<
         clearTimeout(readyTimer);
         mountedRef.current = false;
       };
-    }, [component, shouldValidate, timeout, renderState, onRenderSuccess]);
+      // Note: renderState is intentionally not in dependencies to avoid re-render cycles
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [component, shouldValidate, timeout, onRenderSuccess]);
 
     // Handle retry
     const handleRetry = React.useCallback(() => {
