@@ -172,6 +172,7 @@ const defaultColors = [
 
 /**
  * A component that renders various types of charts using Recharts
+ * Optimized with React.memo for performance
  * @component
  * @example
  * ```tsx
@@ -191,11 +192,12 @@ const defaultColors = [
  * />
  * ```
  */
-export const Graph = React.forwardRef<HTMLDivElement, GraphProps>(
-  (
-    { className, variant, size, data, title, showLegend = true, ...props },
-    ref,
-  ) => {
+export const Graph = React.memo(
+  React.forwardRef<HTMLDivElement, GraphProps>(
+    (
+      { className, variant, size, data, title, showLegend = true, ...props },
+      ref,
+    ) => {
     // If no data received yet, show loading
     if (!data) {
       return (
@@ -486,6 +488,6 @@ export const Graph = React.forwardRef<HTMLDivElement, GraphProps>(
         </div>
       </GraphErrorBoundary>
     );
-  },
+  }),
 );
 Graph.displayName = "Graph";
