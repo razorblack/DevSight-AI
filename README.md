@@ -366,32 +366,80 @@ export const tools: TamboTool[] = [
 
 ## 🚀 Deployment
 
-DevSight AI is built with Next.js and can be deployed to any platform that supports Next.js:
+DevSight AI is built with Next.js and can be deployed to any platform that supports Next.js.
+
+> **📘 For detailed deployment instructions, see [DEPLOYMENT.md](./DEPLOYMENT.md)**
 
 ### Deploy to Vercel (Recommended)
 
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Frazorblack%2FDevSight-AI&env=TAMBO_API_KEY&envDescription=Get%20your%20Tambo%20API%20key%20from%20tambo.co/dashboard&project-name=devsight-ai&repository-name=devsight-ai)
+
+#### Quick Start
+
 1. **Push your code to GitHub**
 2. **Import your repository** on [vercel.com](https://vercel.com)
-3. **Add environment variables**:
-   - `TAMBO_API_KEY`
+3. **Add environment variables** in Vercel dashboard:
+   - `TAMBO_API_KEY` (required) - Get from [tambo.co/dashboard](https://tambo.co/dashboard)
+   - `TAMBO_BASE_URL` (optional) - Defaults to `https://api.tambo.co`
+   - `TAMBO_MAX_BODY_BYTES` (optional) - Defaults to `5242880` (5MB)
 4. **Deploy!**
 
-Vercel will automatically detect Next.js and configure the build.
+Vercel will automatically:
+- Detect Next.js framework
+- Run `npm install` to install dependencies
+- Run `npm run build` to create production build
+- Deploy to a global CDN
+
+#### Environment Variables
+
+All environment variables should be added in the Vercel dashboard under **Project Settings → Environment Variables**:
+
+- Set for **Production**, **Preview**, and **Development** environments
+- Server-side variables (e.g., `TAMBO_API_KEY`) remain secure and never exposed to the browser
+- Client-side variables must use `NEXT_PUBLIC_` prefix (e.g., `NEXT_PUBLIC_TAMBO_URL`)
 
 ### Deploy to Other Platforms
 
 DevSight AI can also be deployed to:
-- **Netlify**: Use the Next.js build plugin
+- **Netlify**: Use the Next.js runtime
 - **AWS Amplify**: Connect your GitHub repo
-- **Docker**: Use the included Dockerfile (if available)
+- **Railway**: One-click deploy with environment variables
+- **Render**: Connect repo and set build command
 - **Self-hosted**: Run `npm run build && npm run start`
+
+> **Note**: Regardless of platform, you must set the `TAMBO_API_KEY` environment variable.
 
 ### Production Build
 
+Test the production build locally:
+
 ```bash
+# Build the production bundle
 npm run build
+
+# Start the production server
 npm run start
 ```
+
+The production build:
+- ✅ Optimizes bundle size
+- ✅ Pre-renders static pages
+- ✅ Enables server-side rendering
+- ✅ Configures proper caching headers
+
+### Deployment Verification
+
+After deploying, verify:
+
+- [ ] Build completes without errors
+- [ ] Environment variables are set correctly
+- [ ] Home page loads at `/`
+- [ ] Chat interface works at `/chat`
+- [ ] API route responds at `/api/tambo`
+- [ ] No console errors in browser
+- [ ] AI responses generate properly
+
+For troubleshooting, see [DEPLOYMENT.md](./DEPLOYMENT.md).
 
 The production build is optimized and ready for deployment.
 
